@@ -11,7 +11,7 @@ describe('Container.Namespace constructor', function() {
 	});
 	it('instantiated with container and namespace sets namespace', function() {
 		var ns = new Container.Namespace(container, 'ns');
-		expect(ns.getNamespace()).toBe('ns');
+		expect(ns.getBasename()).toBe('ns');
 	});
 	it('instantiated with non-container and namespace throws exception', function() {
 		expect(function() {
@@ -43,7 +43,7 @@ describe('Container.Namespace instance', function() {
 	});
 	it('sets container and namespace', function() {
 		expect(ns.getContainer()).toBe(container);
-		expect(ns.getNamespace()).toBe('ns');
+		expect(ns.getBasename()).toBe('ns');
 	});
 	it('.constructor() should not be overridden', function() {
 		expect(ns.constructor).toBe(Object.getPrototypeOf(ns).constructor);
@@ -100,7 +100,7 @@ describe('Container.Namespace instance', function() {
 	it('.namespace() called with key sets namespace with container and nested namespace', function() {
 		var nested = ns.namespace('second');
 		expect(nested.getContainer()).toBe(container);
-		expect(nested.getNamespace()).toBe('ns.second');
+		expect(nested.getBasename()).toBe('ns.second');
 		spyOn(container, 'get').and.returnValue('nested value');
 		var result = nested.get('foo');
 		expect(result).toBe('nested value');

@@ -93,10 +93,10 @@ Gets the namespace's container.
 console.log(container === namespace.getContainer()) // true
 ```
 
-#### `container` .getNamespace() ####
+#### `string` .getBasename() ####
 Gets the namespace's namespace.
 ```
-console.log(namespace.getNamespace()) // "cats"
+console.log(namespace.getBasename()) // "cats"
 ```
 
 #### `undefined|string` .makeKey(`string` key) ####

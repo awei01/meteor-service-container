@@ -14,12 +14,12 @@ Container.Namespace = class Namespace {
 	getContainer() {
 		return this._container;
 	}
-	getNamespace() {
+	getBasename() {
 		return this._namespace;
 	}
 	makeKey(key) {
 		if (key && _.isString(key)) {
-			return `${this.getNamespace()}.${key}`;
+			return `${this.getBasename()}.${key}`;
 		}
 	}
 	_bindMethods() {

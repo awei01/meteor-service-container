@@ -261,6 +261,6 @@ describe('container .namespace()', function() {
 		var ns = container.namespace('foo');
 		expect(ns instanceof Container.Namespace).toBe(true);
 		expect(ns.getContainer()).toBe(container);
-		expect(ns.getNamespace()).toBe('foo');
+		expect(ns.getBasename()).toBe('foo');
 	});
 });
