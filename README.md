@@ -4,7 +4,7 @@ A dependency injection solution for Meteor. Shamelessly borrows concepts from th
 
 ## Motivation ##
 
-Wanted a way to better de-couple code and make testing easier. Tried a few other existing Meteor packages, but none quite fit the bill. I've worked with Laravel before and really liked how the API worked so I tried to carry over its ideas to a Meteor package.
+Wanted a way to better de-couple code and make testing easier. Tried a few other existing Meteor packages, but none quite fit the bill. I've worked with Laravel before and really the API so I tried to carry over some of its ideas to a Meteor package.
 
 ## Container API ##
 
@@ -15,7 +15,7 @@ var app = new Container();
 ```
 
 #### `void` .set(`string` key, `mixed` value) ####
-Sets a key to be a particular value. The value can be a string, boolean, number, function, etc.
+Sets a key to be a particular value. The value can be a string, boolean, number, function, etc; anything other than `undefined`.
 ```
 app.set('foo', 'foo value');
 ```
@@ -48,7 +48,7 @@ app.singleton('bound thing', function(container) {
 ```
 
 #### `mixed` .make(`string` key) ####
-Forces a call on the binding referenced by `key` and returns its result. If the binding was shared when it was first bound, it will store the result for access via `.get()`. Even if an instance is stored, the `.make()` method will call the binding again and re-store the its result.
+Forces a call on the binding referenced by `key` and returns its result. If the binding was shared when it was first bound, it will store the result for future `.get()` calls with the same key. Even if an instance is stored, the `.make()` method will call the binding again and re-store the its result.
 ```
 var instance1 = app.make('bound thing');
 var instance2 = app.make('bound thing');
@@ -58,10 +58,12 @@ console.log(instance1 === instance2) // false
 ```
 
 #### `mixed` .get(`string` key) ####
-Gets something out of the container. If the key was set using `.set()` or `.instance()` then it simply returns the mapped value. If the key was set using `.bind()` or `.singleton()` the binding function will be called and its result will be returned. If the key was shared then subsequent `.get()` calls with the same key will circumvent calling the binding function and will return the same instance.
+Gets something out of the container. If the key was set using `.set()` or `.instance()` then it simply returns the mapped value. If the key was set using `.bind()` or `.singleton()` the binding function will be called and its result will be returned. If the key was shared (either by `.bind(key, binding, true)` or `.singleton(key, binding)`) then subsequent `.get()` calls with the same key will circumvent calling the binding function and will return the bound instance every time.
 ```
+// following code example from .set() above
 console.log(app.get('foo')) // "foo value"
 
+// following code example from .singleton() above
 var instance1 = app.get('bound thing');
 var instance2 = app.get('bound thing');
 console.log(instance1 === instance2) // true
@@ -80,33 +82,37 @@ Get the provider tied to key. See below for more details.
 
 #### `instance` new Container.Namespace(`container` container) ####
 Creates a new Namespace instance for the container. The namespace instance can help manage your container's keys. It can also be used to keep your global namespace clutter free.
+```
+var container = new Container();
+var namespace = new Container.Namespace(container, 'cats');
+```
 
 #### `container` .getContainer() ####
 Gets the namespace's container.
 ```
-console.log(app === app.models.getContainer()) // true
+console.log(container === namespace.getContainer()) // true
 ```
 
 #### `container` .getNamespace() ####
 Gets the namespace's namespace.
 ```
-console.log(app.models.getNamespace()) // "models"
+console.log(namespace.getNamespace()) // "cats"
 ```
 
 #### `undefined|string` .makeKey(`string` key) ####
 If the key parameter is not a string or is empty, returns undefined, otherwise, it returns the key prefixed with the namespace.
 ```
-console.log(app.models.makeKey('boo')) // 'models.boo'
+console.log(namespace.makeKey('boo')) // 'cats.boo'
 ```
 
 #### Sample Usage ####
 
 ```
-var app = new Container();
-var models = new Container.Namespace(app, 'models');
+app = new Container();
+models = new Container.Namespace(app, 'models');
 
-// or to keep global namespace cleaner
-var app = new Container();
+// or to keep global namespace even cleaner
+app = new Container();
 app.models = app.namespace('models');
 ```
 
@@ -136,20 +142,24 @@ Get the provider's container
 #### `undefined|namespace` .getNamespace() ####
 Get the provider's namespace if it exists.
 
+#### Sample Usage ####
 ```
+// some dependant class that we'll want to test
 function ThingWithDependencies(foo, bar) {
 	this.foo = foo;
 	this.bar = bar;
 };
 
 var provider = new Container.Provider(app);
+// let's define a consistent method for making this thing
 provider.make = function(dependencies) {
-	// define a method on how to instantiate our dependant class
 	return new ThingWithDependencies(dependencies.foo, dependencies.bar);
 };
+// we'll need to override the prototype
+// this method will be called when app.register() is called with this provider
 provider.register = function() {
-	// this will be called when app.register() is called with provider
 	var me = this;
+	// we'll want to bind an instance to "thing"
 	this._container.singleton('thing', function(container) {
 		var dependencies = {
 				foo: container.get('foo'),
@@ -160,7 +170,7 @@ provider.register = function() {
 }
 
 // now, let's register it on the app.
-// this calls the provider's `.register()` method.
+// this calls the provider's `.register()` method which will register the singleton "thing"
 app.register(provider);
 
 // and let's set its dependencies
@@ -188,6 +198,7 @@ describe('thing instantiated with foo and bar', function() {
 	});
 }
 });
+```
 
 ## Inspirations ##
 * www.laravel.com
