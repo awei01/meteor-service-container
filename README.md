@@ -69,6 +69,9 @@ var instance2 = app.get('bound thing');
 console.log(instance1 === instance2) // true
 ```
 
+#### `boolean` .isShared(`string` key) ####
+Checks whether or not the key has been shared. I.E. key has been set using `.set()`, `.instance()`, `.singleton()` or `.bind()` when the shared param is passed.
+
 #### `namespace` .namespace(`string` namespace) ####
 Create a new `Container.Namespace` instance for this container. See below for more details.
 

@@ -226,6 +226,38 @@ describe('container .register()', function() {
 	});
 });
 
+describe('.isShared()', function() {
+	var container;
+	beforeEach(function() {
+		container = new Container();
+	});
+	it('called with key when key has been .set(), returns true', function() {
+		container.set('foo', 'foo value');
+		expect(container.isShared('foo')).toBe(true);
+	});
+	it('called with key when key has been .instance(), returns true', function() {
+		container.instance('foo', 'foo value');
+		expect(container.isShared('foo')).toBe(true);
+	});
+	it('called with key when key has been .bound() without shared, returns false', function() {
+		container.bind('foo', function() { return 'foo value' }, false);
+		expect(container.isShared('foo')).toBe(false);
+	});
+	it('called with key when key has been .bound() without shared and binding called, returns false', function() {
+		container.bind('foo', function() { return 'foo value' }, false);
+		container.get('foo');
+		expect(container.isShared('foo')).toBe(false);
+	});
+	it('called with key when key has been .bound() with shared, returns true', function() {
+		container.bind('foo', function() { return 'foo value' }, true);
+		expect(container.isShared('foo')).toBe(true);
+	});
+	it('called with key when key has been .singleton(), returns true', function() {
+		container.singleton('foo', function() { return 'foo value' });
+		expect(container.isShared('foo')).toBe(true);
+	});
+});
+
 describe('container .provider() after .register() with key and provider', function() {
 	var container, provider;
 	beforeEach(function() {

@@ -1,6 +1,6 @@
 Package.describe({
   name: 'awei01:service-container',
-  version: '0.0.2',
+  version: '0.0.3',
   // Brief, one-line summary of the package.
   summary: 'A dependency injection solution for Meteor',
   // URL to the Git repository containing the source code for this package.

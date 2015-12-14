@@ -6,13 +6,13 @@ Container = class Container {
 		this._shared = {};
 		this._providers = {};
 	}
-	_validateKey(key, method) {
+	_validateKeyOrThrow(key, method) {
 		if (!key || !_.isString(key)) {
 			throw new Error(`Cannot .${method}() without valid key`);
 		}
 	}
 	get(key) {
-		this._validateKey(key, 'get');
+		this._validateKeyOrThrow(key, 'get');
 		var result = this._instances[key];
 		if (!_.isUndefined(result)) {
 			// we got something, return it
@@ -25,7 +25,7 @@ Container = class Container {
 		return result;
 	}
 	set(key, value) {
-		this._validateKey(key, 'set');
+		this._validateKeyOrThrow(key, 'set');
 		if (_.isUndefined(value)) {
 			// ban user from setting keys to undefined
 			throw new Error(`Cannot .set() [${key}] to undefined`);
@@ -36,7 +36,7 @@ Container = class Container {
 		this.set(key, value);
 	}
 	bind(key, method, share) {
-		this._validateKey(key, 'bind');
+		this._validateKeyOrThrow(key, 'bind');
 		if (!_.isFunction(method)) {
 			throw new Error(`Cannot .bind() [${key}] without function`);
 		}
@@ -49,7 +49,7 @@ Container = class Container {
 		this.bind(key, method, true);
 	}
 	make(key) {
-		this._validateKey(key, 'make');
+		this._validateKeyOrThrow(key, 'make');
 		var binding = this._bindings[key];
 		if (!binding) {
 			throw new Error(`Cannot .make() [${key}] before .bind()`);
@@ -74,7 +74,7 @@ Container = class Container {
 		}
 		if (!_.isNull(key)) {
 			// developer passed a key, let's validate it
-			this._validateKey(key, 'register');
+			this._validateKeyOrThrow(key, 'register');
 		}
 		if (! (provider instanceof Container.Provider)) {
 			let keyed = key ? ' [' + key + '] ' : ' ';
@@ -85,8 +85,11 @@ Container = class Container {
 			this._providers[key] = provider;
 		}
 	}
+	isShared(key) {
+		return !!this._instances[key] || this._shared[key];
+	}
 	provider(key) {
-		this._validateKey(key, 'provider');
+		this._validateKeyOrThrow(key, 'provider');
 		return this._providers[key];
 	}
 	namespace(namespace) {
