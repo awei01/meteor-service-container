@@ -231,6 +231,9 @@ describe('.isShared()', function() {
 	beforeEach(function() {
 		container = new Container();
 	});
+	it('called when key is not set or bound', function() {
+		expect(container.isShared('nonexistent')).toBe(false);
+	});
 	it('called with key when key has been .set(), returns true', function() {
 		container.set('foo', 'foo value');
 		expect(container.isShared('foo')).toBe(true);

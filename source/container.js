@@ -86,7 +86,7 @@ Container = class Container {
 		}
 	}
 	isShared(key) {
-		return !!this._instances[key] || this._shared[key];
+		return !!(this._instances[key] || this._shared[key]);
 	}
 	provider(key) {
 		this._validateKeyOrThrow(key, 'provider');
